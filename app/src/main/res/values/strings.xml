@@ -6,4 +6,5 @@
     <string name="pause_name">暂停</string>
     <string name="save_name">保存</string>
     <string name="none_name"> </string>
+    <string name="start_time">00:00:00</string>
 </resources>
