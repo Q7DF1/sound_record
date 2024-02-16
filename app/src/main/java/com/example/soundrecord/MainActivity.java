@@ -9,16 +9,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Button;
-
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-
 import com.example.soundrecord.common.Configuration;
+import com.example.soundrecord.common.RecordStatus;
 import com.example.soundrecord.service.AudioMedia;
 import com.example.soundrecord.service.impl.AudioRecordImpl;
+import com.example.soundrecord.view.WaveformView;
 
 import java.io.File;
-import java.util.Objects;
 
 public class MainActivity extends Activity {
 
@@ -27,10 +27,12 @@ public class MainActivity extends Activity {
     private Button mBrake;
     private Button mDirOrSave;
     private Button mFlag;
+    private TextView mShowTimer;
     private final Configuration config = new Configuration();
     private static final int AUDIO_PERMISSION_GRANTED = 0x123;
     private static final int STORY_PERMISSION_GRANTED = 0x124;
     private static final String[] PERMISSIONS = {Manifest.permission.RECORD_AUDIO};
+    private WaveformView waveformView;
     @Override
     @SuppressLint("MissingInflatedId")
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +42,34 @@ public class MainActivity extends Activity {
         mBrake = findViewById(R.id.brake);
         mDirOrSave = findViewById(R.id.dir_save);
         mFlag = findViewById(R.id.flag);
+        mShowTimer = findViewById(R.id.timerTextView);
         audioMedia = new AudioRecordImpl();
+        waveformView = new WaveformView(this);
+        waveformView.drawWaveform();
+        // 制动按钮
         mBrake.setOnClickListener(view -> {
+            switch (config.getRecordStatus()) {
+                case STOP:
+                    audioMedia.startRecord(musicFile);
+                    config.setRecordStatus(RecordStatus.RECORDING);
+                    break;
+                case RECORDING:
+                    audioMedia.pauseRecord();
+                    config.setRecordStatus(RecordStatus.PAUSE);
+                    break;
+                case PAUSE:
+                    audioMedia.resumeRecord();
+                    config.setRecordStatus(RecordStatus.RECORDING);
+                    break;
+                default:
+                    throw new RuntimeException("unknown status code");
+            }
+            // 视图变化
             config.setPlay(!config.isPlay());
             config.setSaveStatus(true);
             config.onChangeListener(mBrake, mDirOrSave);
-            if (config.isPlay()) {
-                audioMedia.startRecord(musicFile);
-            }else {
-                audioMedia.pauseRecord();
-            }
         });
-
-
+        // 保存 || 打开目录
         mDirOrSave.setOnClickListener(view -> {
             if (config.isSaveStatus()) {
                 saveAudio();
@@ -60,25 +77,31 @@ public class MainActivity extends Activity {
                 showDir();
             }
         });
-
     }
-
 
     private void saveAudio() {
         Log.v("save","save");
-        audioMedia.stopRecord();
+        if (config.getRecordStatus() == RecordStatus.RECORDING
+                || config.getRecordStatus() == RecordStatus.PAUSE) {
+            audioMedia.stopRecord();
+            audioMedia.releaseRecorder();
+            config.setRecordStatus(RecordStatus.STOP);
+        }
+        // 恢复
+        config.setPlay(false);
+        config.setSaveStatus(false);
+        config.onChangeListener(mBrake,mDirOrSave);
     }
 
     private void showDir() {
-
         Log.v("showDir","showDir");
     }
-
 
     @Override
     protected void onStop() {
         super.onStop();
-        audioMedia.release();
+        audioMedia.releaseRecorder();
+        audioMedia.releasePlayer();
     }
 
     @Override

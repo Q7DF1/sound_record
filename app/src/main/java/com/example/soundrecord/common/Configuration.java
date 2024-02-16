@@ -1,13 +1,8 @@
 package com.example.soundrecord.common;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
-import com.example.soundrecord.MainActivity;
 import com.example.soundrecord.R;
 
 import java.io.File;
@@ -16,11 +11,10 @@ public class Configuration implements ConfigurationListener {
 
     private int mPlayId;
     private int mDirSaveId;
+    // 定义录音状态 0 stop, 1 playing, 2 pause
+    private RecordStatus recordStatus = RecordStatus.STOP;
 
-
-    public Configuration() {
-
-    }
+    public Configuration() {}
 
     // 确定播放状态
     private boolean isPlay = false;
@@ -62,7 +56,13 @@ public class Configuration implements ConfigurationListener {
     public void setSaveStatus(boolean saveStatus) {
         isSaveStatus = saveStatus;
     }
+    public void setRecordStatus(RecordStatus status) {
+        this.recordStatus = status;
+    }
 
+    public RecordStatus getRecordStatus() {
+        return recordStatus;
+    }
 
     @Override
     public void onChangeListener(View ...view) {

@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
 import androidx.annotation.NonNull;
 
 public class WaveformView extends SurfaceView implements SurfaceHolder.Callback {
@@ -17,6 +16,7 @@ public class WaveformView extends SurfaceView implements SurfaceHolder.Callback 
 
     public WaveformView(Context context) {
         super(context);
+        init();
     }
 
     public WaveformView(Context context, AttributeSet attrs) {
@@ -41,7 +41,6 @@ public class WaveformView extends SurfaceView implements SurfaceHolder.Callback 
         if (canvas != null) {
             // clean screen
             canvas.drawColor(Color.BLACK);
-
             // draw wave
             if (audioData != null) {
                 int width = getWidth();
@@ -50,7 +49,7 @@ public class WaveformView extends SurfaceView implements SurfaceHolder.Callback 
                 int barWidth = width / numBars;
                 for (int i = 0; i < numBars; i++) {
                     float barHeight = (audioData[i] / 32768.0f) * height / 2;
-                    canvas.drawRect(i * barWidth,height / 2 - barHeight,(i + 1) * barWidth,height / 2 + barHeight,paint);
+                    canvas.drawRect(i * barWidth, (float) height / 2 - barHeight,(i + 1) * barWidth, (float) height / 2 + barHeight,paint);
                 }
             }
             surfaceHolder.unlockCanvasAndPost(canvas);

@@ -2,29 +2,35 @@ package com.example.soundrecord.service.impl;
 
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-
+import android.util.Log;
 import com.example.soundrecord.service.AudioMedia;
-
 import java.io.File;
 import java.io.IOException;
 
 public class AudioRecordImpl implements AudioMedia {
     // 文件暂存名字
-    private MediaPlayer mediaPlayer;
-    private MediaRecorder mediaRecorder;
-
+    private MediaPlayer mediaPlayer = null;
+    private MediaRecorder mediaRecorder = null;
     public AudioRecordImpl() {
-        mediaRecorder = new MediaRecorder();
-        mediaPlayer = new MediaPlayer();
     }
-    private static final String TMP_NAME = "record.tmp";
+    private static final String TMP_NAME = "record_tmp.mp3";
 
     @Override
     public void startRecord(File filePath) {
+        if (mediaRecorder == null) {
+            mediaRecorder = new MediaRecorder();
+            mediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+                @Override
+                public void onInfo(MediaRecorder mr, int what, int extra) {
+                    Log.v("mr--" + mr.toString(),"what--" + what + "--extra--" + extra);
+                }
+            });
+        }
         File file = new File(filePath,TMP_NAME);
+        Log.v("path",file.getAbsolutePath());
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFile(file);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
         try {
             mediaRecorder.prepare();
@@ -37,24 +43,25 @@ public class AudioRecordImpl implements AudioMedia {
     @Override
     public void stopRecord() {
         mediaRecorder.stop();
-        release();
+        releaseRecorder();
     }
 
     @Override
     public void pauseRecord() {
-
+        mediaRecorder.pause();
     }
 
     @Override
     public void resumeRecord() {
-
+        mediaRecorder.resume();
     }
 
     @Override
     public void startPlay() {
-
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+        }
     }
-
     @Override
     public void stopPlay() {
 
@@ -69,12 +76,27 @@ public class AudioRecordImpl implements AudioMedia {
     public void resumePlay() {
 
     }
-    public void release() {
+    @Override
+    public void releaseRecorder() {
         if (mediaRecorder != null) {
             mediaRecorder.release();
+            mediaRecorder = null;
         }
+    }
+    @Override
+    public void releasePlayer() {
         if (mediaPlayer != null) {
             mediaPlayer.release();
+            mediaPlayer = null;
         }
+
+    }
+
+    public void setOnRecordListener(MediaRecorder.OnInfoListener listener) {
+        mediaRecorder.setOnInfoListener(listener);
+    }
+
+    public void setOnPlayListener(MediaPlayer.OnInfoListener listener) {
+        mediaPlayer.setOnInfoListener(listener);
     }
 }

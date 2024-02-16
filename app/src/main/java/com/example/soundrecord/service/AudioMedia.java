@@ -13,5 +13,7 @@ public interface AudioMedia {
     void stopPlay();
     void pausePlay();
     void resumePlay();
-    void release();
+    void releaseRecorder();
+
+    void releasePlayer();
 }
