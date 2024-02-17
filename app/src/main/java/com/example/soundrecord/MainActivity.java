@@ -17,6 +17,7 @@ import com.example.soundrecord.common.RecordStatus;
 import com.example.soundrecord.service.AudioMedia;
 import com.example.soundrecord.service.impl.AudioRecordImpl;
 import com.example.soundrecord.view.WaveformView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.File;
 
@@ -32,7 +33,7 @@ public class MainActivity extends Activity {
     private static final int AUDIO_PERMISSION_GRANTED = 0x123;
     private static final int STORY_PERMISSION_GRANTED = 0x124;
     private static final String[] PERMISSIONS = {Manifest.permission.RECORD_AUDIO};
-    private WaveformView waveformView;
+    private WaveformView mWaveformView;
     @Override
     @SuppressLint("MissingInflatedId")
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +45,15 @@ public class MainActivity extends Activity {
         mFlag = findViewById(R.id.flag);
         mShowTimer = findViewById(R.id.timerTextView);
         audioMedia = new AudioRecordImpl();
-        waveformView = new WaveformView(this);
-        waveformView.drawWaveform();
+        mWaveformView = findViewById(R.id.surface_view);
         // 制动按钮
         mBrake.setOnClickListener(view -> {
             switch (config.getRecordStatus()) {
                 case STOP:
                     audioMedia.startRecord(musicFile);
                     config.setRecordStatus(RecordStatus.RECORDING);
+                    // 记录音浪
+                    new Thread(this::updateAmplitude);
                     break;
                 case RECORDING:
                     audioMedia.pauseRecord();
@@ -60,6 +62,7 @@ public class MainActivity extends Activity {
                 case PAUSE:
                     audioMedia.resumeRecord();
                     config.setRecordStatus(RecordStatus.RECORDING);
+                    new Thread(this::updateAmplitude);
                     break;
                 default:
                     throw new RuntimeException("unknown status code");
@@ -121,5 +124,16 @@ public class MainActivity extends Activity {
             return;
         }
         Log.v("permission","reject");
+    }
+
+    private void updateAmplitude() {
+        while (config.getRecordStatus() == RecordStatus.RECORDING) {
+            runOnUiThread(()-> mWaveformView.updateAmplitude(audioMedia.getMaxAmplitude()));
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

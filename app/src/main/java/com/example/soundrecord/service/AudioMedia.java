@@ -16,4 +16,6 @@ public interface AudioMedia {
     void releaseRecorder();
 
     void releasePlayer();
+
+    int getMaxAmplitude();
 }

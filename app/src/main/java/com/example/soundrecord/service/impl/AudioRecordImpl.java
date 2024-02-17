@@ -19,12 +19,7 @@ public class AudioRecordImpl implements AudioMedia {
     public void startRecord(File filePath) {
         if (mediaRecorder == null) {
             mediaRecorder = new MediaRecorder();
-            mediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
-                @Override
-                public void onInfo(MediaRecorder mr, int what, int extra) {
-                    Log.v("mr--" + mr.toString(),"what--" + what + "--extra--" + extra);
-                }
-            });
+
         }
         File file = new File(filePath,TMP_NAME);
         Log.v("path",file.getAbsolutePath());
@@ -92,6 +87,11 @@ public class AudioRecordImpl implements AudioMedia {
 
     }
 
+    @Override
+    public int getMaxAmplitude() {
+        return mediaRecorder.getMaxAmplitude();
+    }
+
     public void setOnRecordListener(MediaRecorder.OnInfoListener listener) {
         mediaRecorder.setOnInfoListener(listener);
     }
@@ -99,4 +99,5 @@ public class AudioRecordImpl implements AudioMedia {
     public void setOnPlayListener(MediaPlayer.OnInfoListener listener) {
         mediaPlayer.setOnInfoListener(listener);
     }
+
 }

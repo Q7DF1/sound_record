@@ -7,4 +7,7 @@
     <string name="save_name">保存</string>
     <string name="none_name"> </string>
     <string name="start_time">00:00:00</string>
+    <string name="file_name">文件名</string>
+    <string name="save_file">保存</string>
+    <string name="delete_file">删除</string>
 </resources>
