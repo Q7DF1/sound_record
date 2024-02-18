@@ -1,21 +1,29 @@
 package com.example.soundrecord.common;
 
+import android.media.MediaRecorder;
 import android.os.Environment;
 import android.view.View;
 
 import com.example.soundrecord.R;
+import com.example.soundrecord.service.AudioMedia;
 
 import java.io.File;
 
 public class Configuration implements ConfigurationListener {
-
     private int mPlayId;
     private int mDirSaveId;
     // 定义录音状态 0 stop, 1 playing, 2 pause
     private RecordStatus recordStatus = RecordStatus.STOP;
+    private int encoder = MediaRecorder.AudioEncoder.AMR_NB;
+    public static final String TMP_FILE_NAME = "tmp.mp3";
 
-    public Configuration() {}
+    private Configuration() {}
+    // 饿汉
+    private static final Configuration config = new Configuration();
 
+    public  static Configuration newInstance() {
+        return config;
+    }
     // 确定播放状态
     private boolean isPlay = false;
     // 确定是否可以点击保存状态、 默认开启录音后就不再显示目录可以直接保存
@@ -27,6 +35,14 @@ public class Configuration implements ConfigurationListener {
 
     public int getPlayId() {
         return mPlayId;
+    }
+
+    public int getEncoder() {
+        return encoder;
+    }
+
+    public void setEncoder(int encoder) {
+        this.encoder = encoder;
     }
 
     public void setPlayId(int mPlayId) {

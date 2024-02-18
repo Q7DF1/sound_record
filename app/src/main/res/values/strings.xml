@@ -10,4 +10,6 @@
     <string name="file_name">文件名</string>
     <string name="save_file">保存</string>
     <string name="delete_file">删除</string>
+    <string name="local_service_connected">本地服务已连接</string>
+    <string name="local_service_disconnected">本地服务断开连接</string>
 </resources>
